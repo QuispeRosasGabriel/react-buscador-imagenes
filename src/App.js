@@ -5,6 +5,8 @@ import ListadoImagenes from "./components/ListadoImagenes";
 function App() {
   const [busqueda, guardarBusqueda] = useState("");
   const [imagenes, guardarImagenes] = useState([]);
+  const [paginaactual, guardarPaginaActual] = useState(1);
+  const [totalpaginas, guardarTotalPaginas] = useState(1);
 
   useEffect(() => {
     const consultarApi = async () => {
@@ -18,10 +20,22 @@ function App() {
       const respuesta = await fetch(url);
       const resultado = await respuesta.json();
       guardarImagenes(resultado.hits);
+      //calcular el total de paginas
+      const calcularTotalPaginas = Math.ceil(
+        resultado.totalHits / imagenesPorPagina
+      );
+      guardarTotalPaginas(calcularTotalPaginas);
     };
 
     consultarApi();
   }, [busqueda]);
+
+  //definir la pagina anterior
+  const paginaAnterior = () => {
+    const nuevaPaginaActual = paginaactual - 1;
+    if (nuevaPaginaActual === 0) return;
+    guardarPaginaActual(nuevaPaginaActual);
+  };
 
   return (
     <Fragment>
@@ -32,6 +46,16 @@ function App() {
         </div>
         <div className="row justify-content-center">
           <ListadoImagenes imagenes={imagenes} />
+          <button
+            onClick={paginaAnterior}
+            className="btn btn-info mr-1"
+            type="button"
+          >
+            &laquo; Anterior
+          </button>
+          <button className="btn btn-info" type="button">
+            Siguiente &raquo;
+          </button>
         </div>
       </div>
     </Fragment>
